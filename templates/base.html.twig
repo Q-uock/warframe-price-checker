@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% set assetBase = assetBase is defined ? assetBase : '/' %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Warframe Prime Set Checker{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ assetBase }}favicon.svg">
+    <link href="{{ assetBase }}vendor/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ assetBase }}styles/app.css" rel="stylesheet">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <div class="floating-quick-tools" id="floatingQuickTools">
+        <button type="button" class="scroll-top-button" id="scrollTopButton" aria-label="Scroll to top" title="Scroll to top">
+            <span aria-hidden="true">&#8593;</span>
+        </button>
+        <div class="floating-search-shell">
+            <input type="search" class="floating-search-input" id="floatingSearchInput" placeholder="Search active tab..." aria-label="Search active tab">
+            <button type="button" class="floating-search-clear" id="floatingSearchClear" aria-label="Clear search" title="Clear search">&#10005;</button>
+        </div>
+    </div>
+
+    {% block body %}{% endblock %}
+
+    <script src="{{ assetBase }}vendor/bootstrap.bundle.min.js"></script>
+    <script src="{{ assetBase }}scripts/app.js"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

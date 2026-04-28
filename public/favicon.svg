@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Warframe Prime Set Checker</title>
+  <defs>
+    <linearGradient id="bg" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="20" y1="18" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#bae6fd"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="18" fill="#08111f"/>
+  <rect x="7" y="7" width="50" height="50" rx="15" fill="url(#bg)" opacity="0.18"/>
+  <path d="M32 12 44 20 49 33 39 50 25 50 15 33 20 20Z" fill="url(#accent)" opacity="0.96"/>
+  <path d="M32 18 39 23 42 32 36 43 28 43 22 32 25 23Z" fill="#08111f"/>
+  <path d="M32 24 36 27 34.5 35 29.5 35 28 27Z" fill="#67e8f9"/>
+  <path d="M18 45h8l-3 5h-8zm20-8h8l-3 5h-8zm4-12h8l-3 5h-8z" fill="#f59e0b"/>
+</svg>

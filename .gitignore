@@ -1,0 +1,10 @@
+.env
+*:Zone.Identifier
+/vendor/
+/dist/
+/var/cache/
+/var/data/
+/var/log/
+/.phpunit.cache/
+.env.local
+.env.*.local

@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+{% import 'home/_table_macros.html.twig' as tables %}
+
+{% set warframes = sets|filter(set => set.category == 'warframe') %}
+{% set weapons = sets|filter(set => set.category == 'weapon') %}
+{% set others = sets|filter(set => set.category == 'other') %}
+{% set staticMode = staticMode|default(false) %}
+{% set assetBase = assetBase is defined ? assetBase : '/' %}
+
+{% block title %}Cheapest Prime Sets | Warframe Prime Set Checker{% endblock %}
+
+{% block body %}
+    <main class="container py-4 py-lg-5" data-refreshing="{{ refreshing ? 'true' : 'false' }}" data-refresh-status="{{ refreshStatusData.status|default('idle') }}" data-refresh-status-url="{{ staticMode ? '' : path('app_refresh_status') }}" data-static-mode="{{ staticMode ? 'true' : 'false' }}">
+
+        {% if refreshStatusData and not staticMode %}
+            {% set statusClass = refreshStatusData.status == 'failed' ? 'refresh-status-failed' : (refreshStatusData.status == 'completed' ? 'refresh-status-completed' : 'refresh-status-running') %}
+            <section id="refreshStatusPanel" class="refresh-status-panel {{ statusClass }} p-3 p-lg-4 mb-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-start">
+                    <div>
+                        <div class="refresh-status-label">Refresh Status</div>
+                        <div id="refreshStatusMessage" class="refresh-status-message">{{ refreshStatusData.message|default('No refresh activity recorded yet.') }}</div>
+                        {% if refreshStatusData.error is defined and refreshStatusData.error %}
+                            <div id="refreshStatusError" class="refresh-status-error mt-2">{{ refreshStatusData.error }}</div>
+                        {% endif %}
+                        {% if refreshStatusData.total is defined and refreshStatusData.total %}
+                            <div id="refreshStatusProgress" class="refresh-status-progress mt-2">Progress: {{ refreshStatusData.current|default(0) }} / {{ refreshStatusData.total }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="refresh-status-meta text-muted-soft">
+                        <div id="refreshStatusState">Status: {{ refreshStatusData.status|default('unknown') }}</div>
+                        {% if refreshStatusData.phase is defined and refreshStatusData.phase %}
+                            <div id="refreshStatusPhase">Phase: {{ refreshStatusData.phase }}</div>
+                        {% endif %}
+                        {% if refreshStatusData.updatedAt is defined and refreshStatusData.updatedAt %}
+                            <div id="refreshStatusUpdated">Updated: {{ refreshStatusData.updatedAt|date('j M Y H:i:s') }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        {% endif %}
+
+        {% if not hasSnapshot %}
+            <section class="set-card p-4 p-lg-5 text-center mb-4">
+                <h2 class="h3 mb-3">No snapshot available yet</h2>
+                <p class="text-muted-soft mb-4">
+                    {% if staticMode %}
+                        The static export needs a generated snapshot before it can be published.
+                    {% else %}
+                        Start a refresh first. As soon as the background run finishes, the latest prime set prices will appear here.
+                    {% endif %}
+                </p>
+                {% if not staticMode %}
+                    <form method="post" action="{{ path('app_refresh') }}">
+                        <button class="btn btn-info btn-lg px-4" type="submit" {% if refreshing %}disabled{% endif %}>Create first snapshot</button>
+                    </form>
+                {% endif %}
+            </section>
+        {% else %}
+            <section class="table-shell p-3 p-lg-4 mb-4">
+                <div class="tabs-toolbar mb-4">
+                    <ul class="nav nav-pills category-tabs" id="primeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="warframes-tab" data-bs-toggle="pill" data-bs-target="#warframes-panel" type="button" role="tab" aria-controls="warframes-panel" aria-selected="true">
+                                Warframes <span class="tab-count" data-owned-counter="warframe" data-total="{{ warframes|length }}">0/{{ warframes|length }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="weapons-tab" data-bs-toggle="pill" data-bs-target="#weapons-panel" type="button" role="tab" aria-controls="weapons-panel" aria-selected="false">
+                                Weapons <span class="tab-count" data-owned-counter="weapon" data-total="{{ weapons|length }}">0/{{ weapons|length }}</span>
+                            </button>
+                        </li>
+                        {% if others is not empty %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="others-tab" data-bs-toggle="pill" data-bs-target="#others-panel" type="button" role="tab" aria-controls="others-panel" aria-selected="false">
+                                    Other <span class="tab-count" data-owned-counter="other" data-total="{{ others|length }}">0/{{ others|length }}</span>
+                                </button>
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="tabs-toolbar-actions d-flex align-items-center gap-2 flex-wrap">
+                        <div class="snapshot-meta {{ refreshing ? 'is-running' }}">
+                            <span class="snapshot-meta-label">Last updated</span>
+                            <span class="snapshot-meta-value">{{ generatedAt ? generatedAt|date('j M Y H:i') : 'No snapshot yet' }}</span>
+                            {% if refreshing %}
+                                <span class="snapshot-meta-state">Refreshing</span>
+                            {% endif %}
+                        </div>
+                        <div class="form-check form-switch modern-switch mb-0">
+                            <input class="form-check-input" type="checkbox" role="switch" id="hideCompletedSets">
+                            <label class="form-check-label text-muted-soft" for="hideCompletedSets">Hide completed sets</label>
+                        </div>
+                        {% if not staticMode %}
+                            <form method="post" action="{{ path('app_refresh') }}" class="mb-0">
+                                <button class="refresh-circle" type="submit" {% if refreshing %}disabled{% endif %} aria-label="Refresh prices" title="Refresh prices">
+                                    <span aria-hidden="true">&#8635;</span>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tab-content" id="primeTabContent">
+                    <div class="tab-pane fade show active" id="warframes-panel" role="tabpanel" aria-labelledby="warframes-tab" tabindex="0">
+                        {{ tables.render_table('Warframes', 'warframes', warframes) }}
+                    </div>
+                    <div class="tab-pane fade" id="weapons-panel" role="tabpanel" aria-labelledby="weapons-tab" tabindex="0">
+                        {{ tables.render_table('Weapons', 'weapons', weapons) }}
+                    </div>
+                    {% if others is not empty %}
+                        <div class="tab-pane fade" id="others-panel" role="tabpanel" aria-labelledby="others-tab" tabindex="0">
+                            {{ tables.render_table('Other Prime Sets', 'others', others) }}
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ assetBase }}scripts/home-index.js"></script>
+{% endblock %}

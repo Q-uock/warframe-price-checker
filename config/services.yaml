@@ -1,0 +1,24 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $projectDir: '%kernel.project_dir%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    Symfony\Contracts\HttpClient\HttpClientInterface:
+        factory: ['@http_client', 'withOptions']
+        arguments:
+            -
+                base_uri: 'https://api.warframe.market/v2/'
+                headers:
+                    Accept: 'application/json'
+                    Language: 'en'
+                    User-Agent: 'wf-price-checker/1.0'
+                timeout: 30

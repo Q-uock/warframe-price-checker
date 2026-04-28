@@ -1,0 +1,138 @@
+{% macro render_table(title, key, items) %}
+    <div class="category-panel">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-3">
+            <div class="search-shell w-100">
+                <input type="search" class="form-control form-control-lg search-input" placeholder="{{ title }} search..." data-search-target="table-{{ key }}">
+                <button type="button" class="search-clear" data-search-clear="table-{{ key }}" aria-label="Clear {{ title }} search" title="Clear search">&#10005;</button>
+            </div>
+        </div>
+
+        <div class="table-scroll">
+            <table class="table align-middle" id="table-{{ key }}">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Owned</th>
+                        <th>Set</th>
+                        <th>Best Price</th>
+                        <th>Full Set</th>
+                        <th>Parts</th>
+                        <th>Savings</th>
+                        <th>Best Method</th>
+                        <th>Parts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for set in items %}
+                        <tr data-set-slug="{{ set.slug }}" data-set-category="{{ set.category }}">
+                            <td><span class="rank-pill">#{{ loop.index }}</span></td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger rounded-circle ownership-toggle"
+                                    data-toggle-kind="sets"
+                                    data-slug="{{ set.slug }}"
+                                    aria-pressed="false"
+                                    title="Missing"
+                                >
+                                    <span data-toggle-icon>&#10005;</span>
+                                </button>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if set.imageUrl %}
+                                        <img src="{{ set.imageUrl }}" alt="{{ set.name }}" class="table-thumb">
+                                    {% endif %}
+                                    <div>
+                                        {% set tradeUrl = 'https://warframe.market/items/' ~ set.slug ~ '?type=sell' %}
+                                        <div class="fw-semibold"><a href="{{ tradeUrl }}" target="_blank" rel="noopener noreferrer" class="set-link">{{ set.name }}</a></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-bold fs-5">{{ set.bestPrice }}p</td>
+                            <td class="price-cell {{ set.cheaperMethod == 'complete-set' ? 'price-cell-best' : '' }}">
+                                <span class="price-with-info">
+                                    <span>{{ set.setPrice is not null ? (set.setPrice ~ 'p') : 'n/a' }}</span>
+                                    {% if set.sellOrders|default([]) is not empty %}
+                                        <span class="order-info" tabindex="0" aria-label="Show top sell orders">
+                                            i
+                                            <span class="order-tooltip" role="tooltip">
+                                                <span class="order-tooltip-title">Top sell orders</span>
+                                                {% for order in set.sellOrders %}
+                                                    <span class="order-tooltip-row">
+                                                        <span class="order-tooltip-price">{{ order.price }}p</span>
+                                                        <span class="order-tooltip-user">{{ order.userName }}</span>
+                                                        <span class="order-tooltip-meta"><span class="order-status order-status-{{ order.status }}">{{ order.status }}</span> | rep {{ order.reputation }} | x{{ order.quantity }}</span>
+                                                    </span>
+                                                {% endfor %}
+                                            </span>
+                                        </span>
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="price-cell {{ set.cheaperMethod == 'individual-parts' ? 'price-cell-best' : '' }}">{{ set.partsPrice is not null ? (set.partsPrice ~ 'p') : 'n/a' }}</td>
+                            <td>{{ set.savings is not null ? (set.savings ~ 'p') : 'n/a' }}</td>
+                            <td>
+                                {% if set.cheaperMethod == 'complete-set' %}
+                                    <span class="price-badge accent-badge">Full Set</span>
+                                {% elseif set.cheaperMethod == 'individual-parts' %}
+                                    <span class="price-badge warning-badge">Parts</span>
+                                {% else %}
+                                    <span class="price-badge">Tie</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="parts-grid parts-grid-compact">
+                                    {% for part in set.parts %}
+                                        <div class="part-card part-card-compact" data-part-slug="{{ part.slug }}">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-danger rounded-circle ownership-toggle part-toggle"
+                                                data-toggle-kind="parts"
+                                                data-slug="{{ part.slug }}"
+                                                aria-pressed="false"
+                                                title="Missing"
+                                            >
+                                                <span data-toggle-icon>&#10005;</span>
+                                            </button>
+                                            {% if part.imageUrl %}
+                                                <img src="{{ part.imageUrl }}" alt="{{ part.name }}" class="part-thumb part-thumb-compact">
+                                            {% endif %}
+                                            <div>
+                                                <div class="part-name">{{ part.name }}</div>
+                                                <div class="part-price">
+                                                    <span class="price-with-info">
+                                                        <span>{{ part.sellPrice is not null ? (part.sellPrice ~ 'p') : 'n/a' }}</span>
+                                                        {% if part.sellOrders|default([]) is not empty %}
+                                                            <span class="order-info order-info-compact" tabindex="0" aria-label="Show top sell orders">
+                                                                i
+                                                                <span class="order-tooltip" role="tooltip">
+                                                                    <span class="order-tooltip-title">Top sell orders</span>
+                                                                    {% for order in part.sellOrders %}
+                                                                        <span class="order-tooltip-row">
+                                                                            <span class="order-tooltip-price">{{ order.price }}p</span>
+                                                                            <span class="order-tooltip-user">{{ order.userName }}</span>
+                                                                            <span class="order-tooltip-meta"><span class="order-status order-status-{{ order.status }}">{{ order.status }}</span> | rep {{ order.reputation }} | x{{ order.quantity }}</span>
+                                                                        </span>
+                                                                    {% endfor %}
+                                                                </span>
+                                                            </span>
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted-soft">No sets found in this category.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endmacro %}
