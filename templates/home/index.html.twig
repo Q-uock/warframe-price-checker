@@ -32,7 +32,7 @@
                             <div id="refreshStatusPhase">Phase: {{ refreshStatusData.phase }}</div>
                         {% endif %}
                         {% if refreshStatusData.updatedAt is defined and refreshStatusData.updatedAt %}
-                            <div id="refreshStatusUpdated">Updated: {{ refreshStatusData.updatedAt|date('j M Y H:i:s') }}</div>
+                            <div id="refreshStatusUpdated" data-local-timestamp="{{ refreshStatusData.updatedAt|date('c') }}" data-local-timestamp-prefix="Updated: ">Updated: {{ refreshStatusData.updatedAt|date('j M Y H:i:s') }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -81,7 +81,7 @@
                     <div class="tabs-toolbar-actions d-flex align-items-center gap-2 flex-wrap">
                         <div class="snapshot-meta {{ refreshing ? 'is-running' }}">
                             <span class="snapshot-meta-label">Last updated</span>
-                            <span class="snapshot-meta-value">{{ generatedAt ? generatedAt|date('j M Y H:i') : 'No snapshot yet' }}</span>
+                            <span class="snapshot-meta-value"{% if generatedAt %} data-local-timestamp="{{ generatedAt|date('c') }}" data-local-timestamp-seconds="false"{% endif %}>{{ generatedAt ? generatedAt|date('j M Y H:i') : 'No snapshot yet' }}</span>
                             {% if refreshing %}
                                 <span class="snapshot-meta-state">Refreshing</span>
                             {% endif %}

@@ -40,7 +40,7 @@
         return 'refresh-status-running';
     };
 
-    const formatUpdatedAt = (value) => {
+    const formatUpdatedAt = (value, options = {}) => {
         if (!value) {
             return null;
         }
@@ -50,15 +50,32 @@
             return value;
         }
 
-        return new Intl.DateTimeFormat('en-GB', {
+        const dateTimeOptions = {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            second: '2-digit',
             hour12: false,
-        }).format(date);
+        };
+
+        if (options.seconds !== false) {
+            dateTimeOptions.second = '2-digit';
+        }
+
+        return new Intl.DateTimeFormat('en-GB', dateTimeOptions).format(date);
+    };
+
+    const syncLocalTimestamps = () => {
+        document.querySelectorAll('[data-local-timestamp]').forEach((element) => {
+            const formatted = formatUpdatedAt(element.dataset.localTimestamp, {
+                seconds: element.dataset.localTimestampSeconds !== 'false',
+            });
+
+            if (formatted) {
+                element.textContent = `${element.dataset.localTimestampPrefix || ''}${formatted}`;
+            }
+        });
     };
 
     const renderRefreshStatus = (status) => {
@@ -468,6 +485,7 @@
     });
 
     syncOwnershipState();
+    syncLocalTimestamps();
     document.querySelectorAll('[data-search-target]').forEach(syncSearchClearButton);
     syncFloatingSearchInput();
     syncFloatingSearchClearButton();
